@@ -2,8 +2,10 @@ package repository;
 
 import model.Customer;
 
+import java.sql.SQLException;
+
 public interface CustomerRepo {
-    void addCustomer(Customer customer);
-    void UpdateCustomer(int customerId ,Customer customer);
+    boolean addCustomer(Customer customer) throws SQLException;
+    void UpdateCustomer(int customerId ,Customer customer) throws SQLException;
 
 }
