@@ -6,21 +6,30 @@ import repository.Imp.SqlCustomerRep;
 
 import java.sql.SQLException;
 
-public class CustomerService {
-    private SqlCustomerRep customerRepo;
+public class CustomerService extends SqlCustomerRep {
+    private final SqlCustomerRep customerRepo;
 
     public CustomerService(SqlCustomerRep customerRepo) {
         this.customerRepo = customerRepo;
     }
 
-    public boolean registerCustomer(Customer customer) throws SQLException {
-        try {
-            return customerRepo.addCustomer(customer);
-        } catch (Exception e) {
-            System.out.println("Error adding customer: " + e.getMessage());
-            return false;
-        }
+    public void registerCustomer(Customer customer) throws SQLException {
+
+             boolean res = customerRepo.addCustomer(customer);
+            System.out.println(res?"Customer added successfully":" failed to add a customer");
+
     }
+
+    public void updateCustomer(int customerId,Customer customer) throws SQLException {
+
+            boolean res =  customerRepo.UpdateCustomer(customerId,customer);
+        System.out.println(res?"Customer updated successfully":" failed to update a customer");
+
+        }
+
+
+
+
 
     public void showCustomers() throws SQLException {
         customerRepo.showCustomers();
