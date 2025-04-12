@@ -9,7 +9,7 @@ List<Product> findByName(String name);
 List<Product> findByCategory(int categoryId);
 boolean updatePrice(int productId , double price);
 boolean updateStock(int productId, int stock);
-//void addProduct(Product product);
+boolean addProduct(Product product);
 }
 //3.2 Produkter
 //(DONE)__________Visa alla produkter: Möjlighet att visa alla produkter från products-tabellen (SELECT * FROM products).
@@ -22,9 +22,3 @@ boolean updateStock(int productId, int stock);
 
 //UPNEXT
 
-//### Ordrar  (1days)
-//- Se orderhistorik för en kund (SELECT med JOIN på orders och customers WHERE customer_id = ?)
-//- Lägga en order (INSERT into orders)
-//- Lägga en order med flera produkter (INSERT into orders_products)
-//- Ange antal av produkten vid orderläggning (Görs tillsammans med ovan INSERT)
-//- Se totala priset på en order (Räkna ihop priset gånger antalet)

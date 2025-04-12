@@ -1,5 +1,6 @@
 package controller;
 
+import model.Product;
 import repository.Imp.SqlProductRepo;
 import repository.ProductRepo;
 import service.ProductService;
@@ -14,7 +15,7 @@ public class ProductController {
         Scanner scanner = new Scanner(System.in);
         int choice;
 
-        System.out.println("1. Show all products\n2. Search products\n3. Delete product\n4. Update product");
+        System.out.println("1. Show all products\n2. Search products\n3. add product\n4. Update product");
         choice = scanner.nextInt();
 
         switch(choice) {
@@ -25,7 +26,7 @@ public class ProductController {
                 search();
                 break;
             case 3:
-                System.out.println("Delete not available yet");
+                addProduct();
                 break;
             case 4:
                 updateProduct();
@@ -34,6 +35,36 @@ public class ProductController {
                 System.out.println("Invalid choice.");
                 break;
         }
+    }
+
+    public void addProduct() throws SQLException {
+
+Scanner sc = new Scanner(System.in);
+        System.out.println("1.add product\n2.exit");
+        int c;
+        do{
+             c = sc.nextInt();
+            sc.nextLine();
+
+            System.out.println("choose manufacture");
+            new SqlProductRepo().showCategory();
+            int manufactureId = sc.nextInt();
+            sc.nextLine();
+            System.out.println("Enter product name: ");
+            String name = sc.nextLine();
+            System.out.println("Enter product price: ");
+
+            double price = sc.nextDouble();
+            sc.nextLine();
+            System.out.println("Enter product stock: ");
+            int stock = sc.nextInt();
+            sc.nextLine();
+            System.out.println("Enter product description: ");
+            String description = sc.nextLine();
+
+            Product p = new Product(manufactureId, name, description, price, stock);
+            product.insertProduct(p);
+        } while (c != 2);
     }
 
     public void showProducts() throws SQLException {

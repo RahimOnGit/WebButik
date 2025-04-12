@@ -10,6 +10,28 @@ import java.util.List;
 public class SqlProductRepo implements ProductRepo {
     private final String db = "jdbc:sqlite:webbutiken.db";
 
+
+    @Override
+    public boolean addProduct(Product product) {
+        try(Connection conn = DriverManager.getConnection(db)) {
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO products (manufacturer_id,name,description,price,stock_quantity) VALUES (?,?,?,?,?)");
+
+            pstmt.setInt(1, product.getManufacturer_id());
+            pstmt.setString(2, product.getName());
+           pstmt.setString(3, product.getDescription());
+            pstmt.setDouble(4, product.getPrice());
+            pstmt.setInt(5, product.getQuantity());
+            pstmt.executeUpdate();
+            return true;
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+
+    }
+
+
     @Override
     public boolean updateStock(int productId, int stock)
     {
@@ -149,6 +171,21 @@ public class SqlProductRepo implements ProductRepo {
 
     }
 
+
+
+    public void manufactures() throws SQLException {
+
+        try(Connection conn = DriverManager.getConnection(db);
+            PreparedStatement pstmt = conn.prepareStatement("select * from manufacturers");
+            ResultSet rs = pstmt.executeQuery())
+        {
+            while (rs.next()) {
+
+                System.out.println(rs.getString("manufacturer_id")+ "." + rs.getString("name"));
+            }
+        }
+
+    }
     public void getProducts(int categoryId) {
 
     }

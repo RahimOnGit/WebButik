@@ -15,6 +15,10 @@ public ProductService(ProductRepo productRepo) {
     this.productRepo = productRepo;
 }
 
+public void insertProduct(Product product) {
+    boolean res = productRepo.addProduct(product);
+    System.out.println(res?product.getName()+" added successfully":"failed to add the product");
+}
 
     public void updateStock(int productId, int stock){
         //check product no found

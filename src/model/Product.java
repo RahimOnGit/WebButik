@@ -16,6 +16,13 @@ public class Product {
         this.price = price;
         this.quantity = quantity;
     }
+    public Product(int manufacturer_id, String name,String description, double price, int quantity) {
+        this.manufacturer_id = manufacturer_id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.quantity = quantity;
+    }
 
     public int getManufacturer_id() {
         return manufacturer_id;
