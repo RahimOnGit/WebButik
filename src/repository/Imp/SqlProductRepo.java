@@ -2,14 +2,49 @@ package repository.Imp;
 
 import model.Product;
 import repository.ProductRepo;
-
 import java.sql.Connection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SqlProductRepo implements ProductRepo {
-    String db = "jdbc:sqlite:webbutiken.db";
+    private final String db = "jdbc:sqlite:webbutiken.db";
+
+    @Override
+    public boolean updateStock(int productId, int stock)
+    {
+        try(Connection conn = DriverManager.getConnection(db))
+        {
+            PreparedStatement pstmt = conn.prepareStatement("UPDATE products SET stock_quantity=? WHERE product_id=?");
+            pstmt.setDouble(1,stock );
+            pstmt.setInt(2, productId);
+            pstmt.executeUpdate();
+            return true;
+        }
+        catch (SQLException e)
+        {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    //update price
+    @Override
+    public boolean updatePrice(int productId, double price){
+       try(Connection conn = DriverManager.getConnection(db))
+       {
+           PreparedStatement pstmt = conn.prepareStatement("UPDATE products SET price=? WHERE product_id=?");
+ pstmt.setDouble(1, price);
+ pstmt.setInt(2, productId);
+ pstmt.executeUpdate();
+ return true;
+       }
+       catch (SQLException e)
+       {
+           System.out.println(e.getMessage());
+           return false;
+       }
+    }
 
     //get all products
     @Override
@@ -66,17 +101,17 @@ public class SqlProductRepo implements ProductRepo {
     @Override
     public List<Product> findByCategory(int categoryId) {
         List<Product> products = new ArrayList<>();
-        try(Connection conn = DriverManager.getConnection(db);
-            PreparedStatement pstmt = conn.prepareStatement("select * from products where manufacturer_id = ?"))
-        {
-            pstmt.setInt(1,categoryId);
-            System.out.println("Searching for " + categoryId);
 
-            System.out.println("sql query :    "+pstmt.toString());
+        String sql = "SELECT p.product_id, p.manufacturer_id, p.name, p.description, p.price, p.stock_quantity " +
+                "FROM products p " +
+                "JOIN products_categories pc ON p.product_id = pc.product_id " +
+                "WHERE pc.category_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(db);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, categoryId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-
-
                 while (rs.next()) {
                     Product p = new Product(
                             rs.getInt("product_id"),
@@ -89,12 +124,14 @@ public class SqlProductRepo implements ProductRepo {
                     products.add(p);
                 }
             }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         return products;
     }
+
 
 
 
@@ -109,6 +146,10 @@ public class SqlProductRepo implements ProductRepo {
                 System.out.println(rs.getString("category_id")+ "." + rs.getString("name"));
             }
         }
+
+    }
+
+    public void getProducts(int categoryId) {
 
     }
 }

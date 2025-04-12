@@ -28,7 +28,7 @@ public class ProductController {
                 System.out.println("Delete not available yet");
                 break;
             case 4:
-                System.out.println("Update not available yet");
+                updateProduct();
                 break;
             default:
                 System.out.println("Invalid choice.");
@@ -68,6 +68,51 @@ public class ProductController {
         } while (choice != 3);
     }
 
+
+    public void updateProduct()
+    {
+        System.out.println("1.Update product price\n2.Update product stock quantity\n3.exit");
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+        do {
+
+
+            choice= scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    updatePrice();
+                case 2:
+                    updateStock();
+                case 3:
+                    break;
+
+            }
+        } while(choice==3);
+
+
+    }
+
+
+    public void updatePrice(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter product id: ");
+        int productId = scanner.nextInt();
+        System.out.println("Enter the new price: ");
+        double price = scanner.nextDouble();
+        product.updatePrice(productId, price);
+
+    }
+
+    public void updateStock(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter product id: ");
+        int productId = scanner.nextInt();
+        System.out.println("Enter the stock quantity: ");
+        int stock = scanner.nextInt();
+        product.updateStock( productId,stock);
+
+    }
+
     public boolean searchByName() throws SQLException {
         Scanner scanner = new Scanner(System.in);
 
@@ -86,14 +131,12 @@ public void searchByCategory() throws SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter product category: ");
         int c = scanner.nextInt();
-       boolean res =  product.findByCategory(c);
-    if(!res)
-        {
-            System.out.println("no product found");
-        }
+       product.findByCategory(c);
 
 
 }
+
+
         }
 
 
