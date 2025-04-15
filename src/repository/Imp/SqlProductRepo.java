@@ -172,6 +172,34 @@ public class SqlProductRepo implements ProductRepo {
     }
 
 
+    public Product getProductById(int productId) throws SQLException {
+        Product p = null;
+        try (Connection conn = DriverManager.getConnection(db)) {
+            PreparedStatement pstmt = conn.prepareStatement("select * from products where product_id=?");
+            pstmt.setInt(1, productId);
+            ResultSet rs = pstmt.executeQuery();
+
+
+            p = null;
+            if (rs.next()) {
+                p = new Product(
+                        rs.getInt("product_id"),
+                        rs.getInt("manufacturer_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getInt("stock_quantity"));
+
+            }
+
+        } catch (Exception e) {
+            System.out.println("product not found");
+
+        }
+        return p;
+    }
+
+
 
     public void manufactures() throws SQLException {
 
@@ -186,7 +214,7 @@ public class SqlProductRepo implements ProductRepo {
         }
 
     }
-    public void getProducts(int categoryId) {
+    public void delete(int categoryId) {
 
     }
 }

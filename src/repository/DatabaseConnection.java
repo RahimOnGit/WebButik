@@ -6,10 +6,11 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
 
+
     private static DatabaseConnection instance;
-    private static String url = "jdbc:sqlite:webbutiken.db";
+    public static String url = "jdbc:sqlite:webbutiken.db";
     private Connection connection;
-    private DatabaseConnection() {
+    public DatabaseConnection() {
 
 
     }

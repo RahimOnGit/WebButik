@@ -6,6 +6,7 @@ import repository.Imp.SqlCustomerRep;
 import service.CustomerService;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
 public class CustomerController extends SqlCustomerRep {
@@ -30,7 +31,8 @@ sc.nextLine();
                     updateCustomer(customerId);
                     break;
                 case 3:
-                    customerService.showCustomers();
+                    viewCustomers();
+
                     break;
                 case 4:
                     System.out.println("Exiting...");
@@ -41,7 +43,7 @@ sc.nextLine();
         }
     }
 
-    private void addCustomer() throws SQLException {
+    public void addCustomer() throws SQLException {
 
 
         Customer customer = customerEntry();
@@ -55,10 +57,15 @@ sc.nextLine();
     }
    //update
 
+public void viewCustomers() throws SQLException {
+    List<Customer> customer = customerService.showCustomers();
+    for (Customer c : customer) {
+        System.out.println(c.toString());
+    }
+}
 
 
-
-private Customer customerEntry()
+public Customer customerEntry()
 {
     Customer customer;
     sc.nextLine();

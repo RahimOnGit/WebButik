@@ -1,7 +1,9 @@
 package model;
 
-import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 //check this class is a sub of order_products ?
@@ -10,13 +12,37 @@ import java.time.LocalDate;
 
 public class Order {
     private int id;
-    private int customerId;
-    private Date orderDate;
+    private Customer customer;
+    private LocalDate orderDate;
+    private List<OrderProducts> orderProducts;
 
-    public Order(int id, int customerId, Date orderDate) {
+    public Order(int id, Customer customer, LocalDate orderDate) {
         this.id = id;
-        this.customerId = customerId;
+        this.customer = customer;
         this.orderDate = orderDate;
+        this.orderProducts = new ArrayList<>();
+
+    }
+
+    public Order() {
+        this.orderProducts = new ArrayList<>();
+        this.orderDate = LocalDate.from(LocalDateTime.now());
+    }
+
+
+    public Order(Customer customer) {
+        this.customer = customer;
+        this.orderProducts = new ArrayList<>();
+        this.orderDate = LocalDate.from(LocalDateTime.now());
+    }
+
+
+    public List<OrderProducts> getOrderProducts() {
+        return orderProducts;
+    }
+
+    public void setOrderProducts(List<OrderProducts> orderProducts) {
+        this.orderProducts = orderProducts;
     }
 
     public int getId() {
@@ -27,76 +53,25 @@ public class Order {
         this.id = id;
     }
 
-    public int getCustomerId() {
-        return customerId;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
-    public Date getOrderDate() {
+    public LocalDate getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(Date orderDate) {
-        this.orderDate = orderDate;
-    }
-}
-
-class order_products  {
-    int id;
-    int orderId;
-    int productId;
-    int quantity;
-    double unitPrice;
-
-    public order_products(int id, int orderId, int productId, int quantity, double unitPrice) {
-        this.id = id;
-        this.orderId = orderId;
-        this.productId = productId;
-        this.quantity = quantity;
-        this.unitPrice = unitPrice;
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = LocalDate.from(orderDate);
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(double unitPrice) {
-        this.unitPrice = unitPrice;
+    @Override
+    public String toString() {
+        return "Orders [id=" + id + ", customerId=" + customer.toString() + ", orderDate=" + orderDate+", orderProducts=" + orderProducts.toString() + "]";
     }
 }
 

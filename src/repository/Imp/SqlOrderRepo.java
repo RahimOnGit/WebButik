@@ -1,6 +1,9 @@
 package repository.Imp;
 
+import model.Customer;
 import model.Order;
+import model.OrderProducts;
+import model.Product;
 import repository.OrderRepo;
 
 import java.sql.*;
@@ -10,45 +13,159 @@ import java.util.List;
 public class SqlOrderRepo implements OrderRepo {
     private final String db = "jdbc:sqlite:webbutiken.db";
 
-
     @Override
-    public List<Order> orderHistory(int customerId) {
-       List<Order> orders = new ArrayList<>();
-        try(Connection conn = DriverManager.getConnection(db))
-       {
-           String sql = "select customers.id as customer_id, CUSTOMERS.name as customer_name, orders.order_id as order_id, orders.order_date  , PRODUCTS.name as product_name,ORDERS_PRODUCTS.quantity ,Orders_products.unit_price \n" +
-                   "FROM ORDERS\n" +
-                   "JOIN CUSTOMERS on CUSTOMERS.customer_id = ORDERS.customer_id\n" +
-                   "join orders_products on orders_products.order_id = orders.order_id \n" +
-                   "Join PRODUCTS on PRODUCTS.product_id = ORDERS_PRODUCTS.product_id;\n" +
-                   "WHERE CUSTOMERS.customer_id = ? ;";
-           try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-               ResultSet rs = pstmt.executeQuery();
-               pstmt.setInt(1, customerId);
+    public boolean addOrder(Order order) {
+        String orderSql = "INSERT INTO orders (customer_id, order_date) VALUES (?, ?)";
+        try (Connection conn = DriverManager.getConnection(db)) {
+            conn.setAutoCommit(false);
 
-               while(rs.next()) {
-                   orders.add(new Order(rs.getInt("order_id"),rs.getInt("customer_id"),rs.getDate("orders.order_date")));
+            try (PreparedStatement pstmt = conn.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS)) {
+                pstmt.setInt(1, order.getCustomer().getId());
+                pstmt.setDate(2, Date.valueOf(order.getOrderDate()));
+                pstmt.executeUpdate();
 
-               }
-           }
-       } catch (SQLException e) {
-           throw new RuntimeException(e);
-       }
-        return orders;
+                // Get generated order ID
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        order.setId(generatedKeys.getInt(1));
+                    } else {
+                        throw new SQLException("Creating order failed, no ID obtained.");
+                    }
+                }
+
+                for (OrderProducts op : order.getOrderProducts()) {
+                    op.setOrder(order);
+                    insertProductToOrder(op, conn);
+                }
+
+                conn.commit();
+                return true;
+
+            } catch (Exception e) {
+                conn.rollback();
+                System.out.println("addOrder() transaction failed: " + e.getMessage());
+                return false;
+            }
+
+        } catch (Exception e) {
+            System.out.println("addOrder() connection failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean insertProductToOrder(OrderProducts orderProducts, Connection conn) {
+        String sql = "INSERT INTO orders_products (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, orderProducts.getOrder().getId());
+            pstmt.setInt(2, orderProducts.getProduct().getProductId());
+            pstmt.setInt(3, orderProducts.getQuantity());
+            pstmt.setDouble(4, orderProducts.getUnitPrice());
+            pstmt.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            System.out.println("insertProductToOrder() error: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
-    public boolean addOrder(Order order) {
-        try(Connection conn = DriverManager.getConnection(db)) {
-            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO orders  (customer_id) VALUES (?)");
+    public Order getOrderById(int orderId) {
+        Order order = null;
 
-            pstmt.setInt(1, order.getCustomerId());
-            pstmt.executeUpdate();
-            return true;
+        try (Connection conn = DriverManager.getConnection(db)) {
+            PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM orders WHERE order_id = ?");
+            pstmt.setInt(1, orderId);
+            ResultSet rs = pstmt.executeQuery();
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return false;
+            if (rs.next()) {
+                int customerId = rs.getInt("customer_id");
+                Customer customer = new SqlCustomerRep().findById(customerId);
+
+                order = new Order(
+                        rs.getInt("order_id"),
+                        customer,
+                        rs.getDate("order_date").toLocalDate()
+                );
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+
+        return order;
+    }
+
+    public List<Order> orderHistory(int customerId) {
+        List<Order> orders = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(db)) {
+            String sql = """
+                SELECT 
+                    o.order_id,
+                    o.customer_id,
+                    o.order_date,
+                    p.product_id,
+                    p.name AS product_name,
+                    p.description,
+                    p.price,
+                    p.stock_quantity AS product_quantity,
+                    p.manufacturer_id,
+                    op.quantity AS order_quantity,
+                    op.unit_price
+                FROM orders o
+                JOIN orders_products op ON op.order_id = o.order_id
+                JOIN products p ON p.product_id = op.product_id
+                WHERE o.customer_id = ?
+            """;
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, customerId);
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    int orderId = rs.getInt("order_id");
+
+                    Product product = new Product(
+                            rs.getInt("product_id"),
+                            rs.getInt("manufacturer_id"),
+                            rs.getString("product_name"),
+                            rs.getString("description"),
+                            rs.getDouble("price"),
+                            rs.getInt("product_quantity")
+                    );
+
+                    OrderProducts orderProduct = new OrderProducts(
+                            null,
+                            product,
+                            rs.getInt("order_quantity"),
+                            rs.getDouble("unit_price")
+                    );
+
+                    Order existingOrder = orders.stream()
+                            .filter(o -> o.getId() == orderId)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (existingOrder != null) {
+                        orderProduct.setOrder(existingOrder);
+                        existingOrder.getOrderProducts().add(orderProduct);
+                    } else {
+                        Customer customer = new SqlCustomerRep().findById(rs.getInt("customer_id"));
+                        Order newOrder = new Order(
+                                orderId,
+                                customer,
+                                rs.getDate("order_date").toLocalDate()
+                        );
+                        orderProduct.setOrder(newOrder);
+                        newOrder.getOrderProducts().add(orderProduct);
+                        orders.add(newOrder);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error retrieving order history: " + e.getMessage(), e);
+        }
+
+        return orders;
     }
 }
