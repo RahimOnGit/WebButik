@@ -1,5 +1,6 @@
 package service;
 
+import model.CartItem;
 import model.Product;
 import repository.Imp.SqlProductRepo;
 import repository.ProductRepo;
@@ -61,6 +62,14 @@ public void findProduct(String name)  {
      }
     }
 
+public CartItem addToCart(List<Product> products, int quantity) {
+    CartItem cartItem = new CartItem();
+    cartItem.setQuantity(quantity);
+    for(Product product : products){
+        cartItem.setProduct(product);
+    }
+    return cartItem;
+}
 
  }
 

@@ -6,6 +6,7 @@ public class OrderProducts  {
     Product product;
     int quantity;
     double unitPrice;
+    CartItem cartItem;
 
 
 
@@ -13,7 +14,7 @@ public class OrderProducts  {
     public OrderProducts(Order order, Product product, int quantity, double unitPrice) {
         this.order = order;
         this.product = product;
-        setQuantity(quantity);
+        this.quantity =  quantity;
         this.unitPrice = unitPrice;
     }
 
@@ -23,6 +24,21 @@ public class OrderProducts  {
         this.product = product;
         setQuantity(quantity);
         this.unitPrice = unitPrice;
+    }
+
+    public OrderProducts(int id, Order order,CartItem cartItem , double unitPrice) {
+        this.id = id;
+        this.order = order;
+        this.cartItem = cartItem;
+        this.unitPrice = unitPrice;
+    }
+
+    public OrderProducts(Order order, CartItem cartItem, double price) {
+        this.order = order;
+        this.product = cartItem.getProduct();
+        this.quantity = cartItem.getQuantity();
+        this.unitPrice = price;
+
     }
 
     public void setId(int id) {
@@ -76,11 +92,11 @@ public class OrderProducts  {
         return unitPrice * quantity;
     }
 
-
     @Override
     public String toString() {
-        return "OrderProduct{" + "orderProductId=" + id +
-                ", product=" + product.getName() + ", quantity=" + quantity +
+
+        return "{ product:  " + product.getName() + ", quantity=" + quantity +
                 ", unitPrice=" + unitPrice + ", totalPrice=" + calculateTotalPrice() + '}';
+
     }
 }

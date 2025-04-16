@@ -1,9 +1,6 @@
 package repository.Imp;
 
-import model.Customer;
-import model.Order;
-import model.OrderProducts;
-import model.Product;
+import model.*;
 import repository.OrderRepo;
 
 import java.sql.*;
@@ -12,6 +9,55 @@ import java.util.List;
 
 public class SqlOrderRepo implements OrderRepo {
     private final String db = "jdbc:sqlite:webbutiken.db";
+
+    public CartItem addProductToCart(Product product , int quantity) {
+        return new CartItem(product, quantity);
+    }
+
+
+
+
+    public Order addOrder(Customer customer,OrderProducts op)
+    {
+        String orderSql = "INSERT INTO orders (customer_id, order_date) VALUES (?, ?)";
+        try (Connection conn = DriverManager.getConnection(db)) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement pstmt = conn.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS)) {
+                pstmt.setInt(1, customer.getId());
+
+                pstmt.setDate(2, Date.valueOf(op.getOrder().getOrderDate()));
+                pstmt.executeUpdate();
+
+                // Get generated order ID
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        op.getOrder().setId(generatedKeys.getInt(1));
+                    } else {
+                        throw new SQLException("Creating order failed, no ID obtained.");
+                    }
+                }
+
+                for (OrderProducts p : op.getOrder().getOrderProducts()) {
+                    p.setOrder(op.getOrder());
+                    insertProductToOrder(op, conn);
+                }
+
+                conn.commit();
+                return op.getOrder();
+
+            } catch (Exception e) {
+                conn.rollback();
+                System.out.println("addOrder() transaction failed: " + e.getMessage());
+                return null;
+            }
+
+        } catch (Exception e) {
+            System.out.println("addOrder() connection failed: " + e.getMessage());
+            return null;
+        }
+
+    }
 
     @Override
     public boolean addOrder(Order order) {
@@ -52,21 +98,50 @@ public class SqlOrderRepo implements OrderRepo {
             return false;
         }
     }
-
     public boolean insertProductToOrder(OrderProducts orderProducts, Connection conn) {
         String sql = "INSERT INTO orders_products (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, orderProducts.getOrder().getId());
             pstmt.setInt(2, orderProducts.getProduct().getProductId());
             pstmt.setInt(3, orderProducts.getQuantity());
             pstmt.setDouble(4, orderProducts.getUnitPrice());
             pstmt.executeUpdate();
+
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int generatedId = generatedKeys.getInt(1);
+                    orderProducts.setId(generatedId);
+                }
+            }
+
             return true;
         } catch (Exception e) {
             System.out.println("insertProductToOrder() error: " + e.getMessage());
             return false;
         }
     }
+
+
+    public CartItem insertProductsToCart(OrderProducts orderProducts, Connection conn) {
+
+        String sql = "INSERT INTO orders_products (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, orderProducts.getId());
+            pstmt.setInt(2, orderProducts.getProduct().getProductId());
+            pstmt.setInt(3, orderProducts.getQuantity());
+            pstmt.setDouble(4, orderProducts.getProduct().getPrice());
+            pstmt.executeUpdate();
+
+            return new CartItem(orderProducts.getProduct(),orderProducts.getQuantity());
+
+        } catch (Exception e) {
+            System.out.println("insertCartItemToOrder() error: " + e.getMessage());
+        return null;
+        }
+    }
+
 
     @Override
     public Order getOrderById(int orderId) {
@@ -158,6 +233,7 @@ public class SqlOrderRepo implements OrderRepo {
                         );
                         orderProduct.setOrder(newOrder);
                         newOrder.getOrderProducts().add(orderProduct);
+
                         orders.add(newOrder);
                     }
                 }

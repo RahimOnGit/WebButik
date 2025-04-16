@@ -8,6 +8,9 @@ import java.util.List;
 
 public class CustomerService extends SqlCustomerRep {
     private final SqlCustomerRep customerRepo;
+//not yet
+    //validate emails
+    //validate not null entry
 
     public CustomerService(SqlCustomerRep customerRepo) {
         this.customerRepo = customerRepo;

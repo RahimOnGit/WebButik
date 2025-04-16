@@ -1,9 +1,11 @@
 package controller;
 
 import model.Customer;
-import repository.CustomerRepo;
+import model.Order;
 import repository.Imp.SqlCustomerRep;
 import service.CustomerService;
+import service.OrderService;
+import service.SessionManagment;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -14,35 +16,83 @@ public class CustomerController extends SqlCustomerRep {
     private Scanner sc = new Scanner(System.in);
     CustomerService customerService =new CustomerService(new SqlCustomerRep());
     SqlCustomerRep sql = new SqlCustomerRep();
-
+    OrderService orderService = new OrderService();
     public void runMenu() throws SQLException {
-        while (true) {
-            System.out.println("1. Add Customer\n2. Update Customer\n3. Show All Customers\n4. Exit");
-            int choice = sc.nextInt();
-sc.nextLine();
 
-            switch (choice) {
-                case 1:
-                    addCustomer();
-                    break;
-                case 2:
-                    System.out.println("Enter Customer ID");
-                    int customerId = sc.nextInt();
-                    updateCustomer(customerId);
-                    break;
-                case 3:
-                    viewCustomers();
+    //   Customer customer =  signIn();
 
-                    break;
-                case 4:
-                    System.out.println("Exiting...");
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
+
+           Scanner sc = new Scanner(System.in);
+           int choice=0;
+        //   System.out.println("Welcome " + customer.getName());
+
+        Customer customer = new Customer(6,"Semo Elhaj","Semo666@gmail.com","076363753","hisstornsgatan 8","123456");
+       do{
+           System.out.println("\n1.order history\n2.order\n3.update my info\n4.Log out\n5.Exit");
+
+           choice = sc.nextInt();
+           switch (choice) {
+               case 1 -> customerOrderHistory(customer);
+               case 2 ->
+                       new CartController().cartMenu(customer);
+               case 3 -> updateCustomer(customer.getId());
+               case 4 -> { customer = signIn(); }
+           }
+       }  while (choice!=5);
+
+
+
         }
-    }
 
+      public Customer signIn() throws SQLException {
+          System.out.println("1. Login");
+          System.out.println("2. Register");
+          System.out.println("3. Exit");
+          int choice;
+          do {
+               choice = sc.nextInt();
+              Customer customer = null;
+              switch (choice) {
+                  case 1 -> {
+                      customer = login();
+                  }
+                  case 2 -> register();
+                  case 3 -> System.exit(0);
+              }
+
+
+              return customer;
+          }while (choice != 3);
+          }
+        public Customer login() throws SQLException {
+            System.out.println("Sign in\n");
+            System.out.println("enter email :");
+            String email = sc.next();
+            System.out.println("enter password :");
+            String password = sc.next();
+
+            return new SessionManagment().login(email, password);
+
+        }
+
+        public void customerOrderHistory(Customer customer) throws SQLException {
+            System.out.println(customer.getName()+" order history");
+       List <Order> orders =  orderService.getOrderHistoryForCustomer(customer.getId());
+           if(orders.isEmpty())
+           {
+               System.out.println(customer.getName()+" order history is empty");
+           }
+               for(Order order : orders)
+               {
+                   System.out.println(order.toString());
+
+               }
+
+        }
+        public void register() throws SQLException {
+            System.out.println("Registration");
+    addCustomer();
+    }
     public void addCustomer() throws SQLException {
 
 
@@ -52,6 +102,7 @@ sc.nextLine();
     }
 
     public void updateCustomer(int customerId) throws SQLException {
+        System.out.println("Update your information\n");
       Customer updatedCustomer = customerEntry();
          customerService.updateCustomer(customerId,updatedCustomer);
     }
@@ -83,4 +134,6 @@ public Customer customerEntry()
      customer = new Customer(name, email, phone, address, password);
 return customer;
 }
+
+
 }

@@ -13,7 +13,7 @@ public class SessionManagment {
     CustomerService customerService = new CustomerService(new SqlCustomerRep());
     CustomerController customerController = new CustomerController();
 
-    public void login(String email, String password) throws SQLException {
+    public Customer login(String email, String password) throws SQLException {
         List<Customer> customer = new CustomerService(new SqlCustomerRep()).showCustomers();
 
 
@@ -33,6 +33,7 @@ public class SessionManagment {
                 System.out.println("Can't log in ..check the email and the password...\n");
 
                 }
+           return loggedCustomer;
 
     }
 

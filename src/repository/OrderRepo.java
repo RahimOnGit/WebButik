@@ -14,7 +14,7 @@ public interface OrderRepo {
 
     public boolean addOrder(Order order);
 
-    public boolean insertProductToOrder(OrderProducts orderProducts, Connection conn);
+    public boolean insertProductToOrder(OrderProducts orderProducts ,Connection conn);
 
     public Order getOrderById(int orderId);
 }

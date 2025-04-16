@@ -1,12 +1,13 @@
 package service;
 
-import model.Customer;
-import model.Order;
-import model.OrderProducts;
-import model.Product;
+import model.*;
+import repository.DatabaseConnection;
 import repository.Imp.SqlOrderRepo;
 import repository.Imp.SqlProductRepo;
 
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,17 @@ this.sqlProductRepo = new SqlProductRepo();
         return sqlOrderRepo.addOrder(order);
     }
 
+    public CartItem addProductsToCart(OrderProducts op)throws SQLException {
+        try(Connection conn = DriverManager.getConnection(DatabaseConnection.url))
+        {
+           return sqlOrderRepo.insertProductsToCart(op,conn);
+        }
+        catch (SQLException e)
+        {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
 //
 
 

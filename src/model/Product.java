@@ -24,6 +24,9 @@ public class Product {
         this.quantity = quantity;
     }
 
+
+
+
     public int getManufacturer_id() {
         return manufacturer_id;
     }
