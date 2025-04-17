@@ -40,8 +40,6 @@ public class CustomerController extends SqlCustomerRep {
            }
        }  while (choice!=5);
 
-
-
         }
 
       public Customer signIn() throws SQLException {

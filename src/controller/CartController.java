@@ -9,8 +9,12 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CartController {
-    CartService cartService = new CartService();
-    OrderController orderController = new OrderController();
+ private final CartService cartService;
+   private final OrderController orderController;
+   public CartController(){
+       this.cartService = new CartService();
+       this.orderController = new OrderController(cartService);
+   }
 
     public void cartMenu(Customer customer) throws SQLException {
         Scanner sc = new Scanner(System.in);

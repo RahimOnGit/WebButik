@@ -13,12 +13,12 @@ public class SqlProductRepo implements ProductRepo {
 
     @Override
     public boolean addProduct(Product product) {
-        try(Connection conn = DriverManager.getConnection(db)) {
+        try (Connection conn = DriverManager.getConnection(db)) {
             PreparedStatement pstmt = conn.prepareStatement("INSERT INTO products (manufacturer_id,name,description,price,stock_quantity) VALUES (?,?,?,?,?)");
 
             pstmt.setInt(1, product.getManufacturer_id());
             pstmt.setString(2, product.getName());
-           pstmt.setString(3, product.getDescription());
+            pstmt.setString(3, product.getDescription());
             pstmt.setDouble(4, product.getPrice());
             pstmt.setInt(5, product.getQuantity());
             pstmt.executeUpdate();
@@ -33,18 +33,14 @@ public class SqlProductRepo implements ProductRepo {
 
 
     @Override
-    public boolean updateStock(int productId, int stock)
-    {
-        try(Connection conn = DriverManager.getConnection(db))
-        {
+    public boolean updateStock(int productId, int stock) {
+        try (Connection conn = DriverManager.getConnection(db)) {
             PreparedStatement pstmt = conn.prepareStatement("UPDATE products SET stock_quantity=? WHERE product_id=?");
-            pstmt.setDouble(1,stock );
+            pstmt.setDouble(1, stock);
             pstmt.setInt(2, productId);
             pstmt.executeUpdate();
             return true;
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
             return false;
         }
@@ -52,23 +48,47 @@ public class SqlProductRepo implements ProductRepo {
 
     //update price
     @Override
-    public boolean updatePrice(int productId, double price){
-       try(Connection conn = DriverManager.getConnection(db))
-       {
-           PreparedStatement pstmt = conn.prepareStatement("UPDATE products SET price=? WHERE product_id=?");
- pstmt.setDouble(1, price);
- pstmt.setInt(2, productId);
- pstmt.executeUpdate();
- return true;
-       }
-       catch (SQLException e)
-       {
-           System.out.println(e.getMessage());
-           return false;
-       }
+    public boolean updatePrice(int productId, double price) {
+        try (Connection conn = DriverManager.getConnection(db)) {
+            PreparedStatement pstmt = conn.prepareStatement("UPDATE products SET price=? WHERE product_id=?");
+            pstmt.setDouble(1, price);
+            pstmt.setInt(2, productId);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
     //get all products
+    public List<Product> getAll() {
+        List<Product> products = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(db)) {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("select * from products");
+
+            while (rs.next()) {
+                Product p = new Product(
+                        rs.getInt("product_id"),
+                        rs.getInt("manufacturer_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("price"),
+                        rs.getInt("stock_quantity")
+                );
+                products.add(p);
+            }
+
+        } catch (Exception e) {
+            System.out.println("error fetching products" + e.getMessage());
+        }
+    return products;
+    }
+
+
+
+
     @Override
     public boolean getAllProducts() {
 
@@ -78,7 +98,7 @@ public class SqlProductRepo implements ProductRepo {
             ResultSet rs = stmt.executeQuery("select * from products");
 
             while (rs.next()) {
-                System.out.println(rs.getString("name")+
+                System.out.println(rs.getInt("product_id") +".   "+rs.getString("name")+
                         "   "+rs.getString("price")+"$"+
                         "   "+rs.getString("stock_quantity")+
                         "   "+rs.getString("description"));

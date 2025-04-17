@@ -4,6 +4,7 @@ import model.Product;
 
 import java.util.List;
 public interface ProductRepo{
+List<Product> getAll();
 boolean getAllProducts();
 List<Product> findByName(String name);
 List<Product> findByCategory(int categoryId);

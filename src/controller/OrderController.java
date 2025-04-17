@@ -23,7 +23,14 @@ public class OrderController {
     OrderService orderService = new OrderService();
     SqlOrderRepo sqlOrderRepo = new SqlOrderRepo();
     private ProductService productService;
-    private final CartService cartService = new CartService();
+    private  CartService cartService;
+    public OrderController(CartService cartService) {
+        this.cartService = cartService;
+    }
+    public OrderController() {
+
+    }
+
 
 
 //implement addCartToOrder()
@@ -58,11 +65,24 @@ signIn();
 public List<CartItem> addToCart() throws SQLException {
     Scanner sc = new Scanner(System.in);
     List <CartItem> items = new ArrayList<>();
-    new SqlProductRepo().getAllProducts();
 
-    System.out.println("Enter Product ID");
-    int product_id = sc.nextInt();
-    Product product = new SqlProductRepo().getProductById(product_id);
+
+//    System.out.println("enter F to  filter or press enter to skip");
+//    String f = sc.nextLine().trim();
+//    if(f.equalsIgnoreCase("F")) {
+//        new ProductController().filterByCategoryAndPrice();
+//    }
+//    else {
+//        new SqlProductRepo().getAllProducts();
+//    }
+
+        new SqlProductRepo().getAllProducts();
+
+
+    System.out.println("\nEnter Product ID");
+    int  product_id = sc.nextInt();
+
+         Product product = new SqlProductRepo().getProductById(product_id);
     if(product == null) {
         System.out.println("Product not found");
         return null;
@@ -70,14 +90,14 @@ public List<CartItem> addToCart() throws SQLException {
     System.out.println("Enter Quantity");
     int quantity = sc.nextInt();
 
-     items = cartService.addToCart(product, quantity);
+     items = this.cartService.addToCart(product, quantity);
 
 
-    System.out.println("Product "+cartService.getCart().toString()+"added to the cart ");
-    for (CartItem cartItem : cartService.getCart()) {
-        System.out.println(cartItem);
-
-    }
+  //  System.out.println("Product "+this.cartService.getCart().toString()+" added to the cart ");
+//    for (CartItem cartItem : this.cartService.getCart()) {
+//        System.out.println(cartItem);
+//
+//    }
     return items;
 }
 
@@ -85,16 +105,26 @@ public void placeOrder(Customer customer){
    try(Connection conn = DriverManager.getConnection(DatabaseConnection.url))
    {
 
-       if (cartService.isEmpty()) {
+       if (this.cartService.isEmpty()) {
            System.out.println("Cart is empty");
        return;
        }
 
        Order order = new Order(customer);
-       for (CartItem item : cartService.getCart()) {
+       for (CartItem item : this.cartService.getCart()) {
+          boolean productExists = false;
+          for(OrderProducts orderProducts : order.getOrderProducts()) {
+              if(orderProducts.getProduct().getProductId() == item.getProduct().getProductId()) {
+                orderProducts.setQuantity(orderProducts.getQuantity() + item.getQuantity());
+                  productExists = true;
+                  break;
+              }
+          }
+          if(!productExists) {
+              OrderProducts orderProduct = new OrderProducts(order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice());
+              order.getOrderProducts().add(orderProduct);
 
-           OrderProducts orderProduct = new OrderProducts(order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice());
-           order.getOrderProducts().add(orderProduct);
+          }
 
        }
 
@@ -117,10 +147,6 @@ public void placeOrder(Customer customer){
     }
 
 }
-
-
-
-
 
 
 public void addCartToOrder(Customer customer) throws SQLException {

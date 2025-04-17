@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProductService  {
 private final ProductRepo productRepo;
@@ -61,15 +62,23 @@ public void findProduct(String name)  {
          }
      }
     }
-
-public CartItem addToCart(List<Product> products, int quantity) {
-    CartItem cartItem = new CartItem();
-    cartItem.setQuantity(quantity);
-    for(Product product : products){
-        cartItem.setProduct(product);
+    public List<Product> filterByCategoryAndPrice(int categoryId, double maxPrice) {
+        return productRepo.getAll().stream()
+                .filter(p -> {
+                    try {
+                        //if product belongs to category
+                        return productRepo.findByCategory(categoryId)
+                                .stream()
+                                .anyMatch(catProduct -> catProduct.getProductId() == p.getProductId());
+                    } catch (Exception e) {
+                        System.out.println("Category check failed: " + e.getMessage());
+                        return false;
+                    }
+                })
+                .filter(p -> p.getPrice() <= maxPrice)
+                .toList();
     }
-    return cartItem;
-}
+
 
  }
 

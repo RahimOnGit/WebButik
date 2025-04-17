@@ -15,10 +15,11 @@ public class CartService {
         for(CartItem item : cart) {
             if(item.getProduct().getProductId() == product.getProductId()) {
                 item.setQuantity(item.getQuantity() + quantity);
-
+return cart;
             }
         }
-        cart.add(new CartItem(product, quantity));
+        CartItem newItem = new CartItem(product, quantity);
+        cart.add(newItem);
 return cart;
     }
 

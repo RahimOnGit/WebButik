@@ -6,6 +6,7 @@ import repository.ProductRepo;
 import service.ProductService;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
 public class ProductController {
@@ -165,6 +166,28 @@ public void searchByCategory() throws SQLException {
        product.findByCategory(c);
 
 
+}
+
+public void filterByCategoryAndPrice()  {
+
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+new SqlProductRepo().showCategory();
+            System.out.println("select category id: ");
+            int categoryId = scanner.nextInt();
+            System.out.println("max price: ");
+            double maxPrice = scanner.nextDouble();
+            List<Product> filtered = product.filterByCategoryAndPrice(categoryId, maxPrice);
+            if (filtered.isEmpty()) {
+                System.out.println("No products found");
+            } else {
+                filtered.forEach(System.out::println);
+            }
+        }
+    catch(Exception e) {
+            System.out.println("Filter failed "+e.getMessage());
+    }
 }
 
 
