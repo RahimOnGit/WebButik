@@ -1,6 +1,7 @@
 package repository.Imp;
 
 import model.Product;
+import repository.DatabaseConnection;
 import repository.ProductRepo;
 import java.sql.Connection;
 import java.sql.*;
@@ -9,6 +10,7 @@ import java.util.List;
 
 public class SqlProductRepo implements ProductRepo {
     private final String db = "jdbc:sqlite:webbutiken.db";
+    DatabaseConnection dbConn = new DatabaseConnection();
 
 
     @Override
@@ -44,6 +46,12 @@ public class SqlProductRepo implements ProductRepo {
             System.out.println(e.getMessage());
             return false;
         }
+    }
+
+    public void autoUpdateStock(int productId, int stock) throws SQLException {
+        Connection conn = dbConn.getConnection();
+        PreparedStatement pstmt = conn.prepareStatement("UPDATE products SET stock_quantity=? WHERE product_id=?");
+
     }
 
     //update price

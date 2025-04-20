@@ -17,9 +17,6 @@ import service.SessionManagment;
 
 public class Main {
     public static void main(String[] args) throws SQLException {
-
-SqlProductRepo sqlProductRepo = new SqlProductRepo();
-SqlOrderRepo sqlOrderRepo = new SqlOrderRepo();
 AdminController adminController = new AdminController();
 CustomerController customerController = new CustomerController();
 Scanner scanner = new Scanner(System.in);

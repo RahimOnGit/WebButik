@@ -7,6 +7,8 @@ public class Review {
     private Customer customer;
     private int rating;
     private String comment;
+    private int productId;
+    private int customerId;
 
     public Review(int id, Product product, Customer customer, int rating, String comment) {
         this.id = id;
@@ -20,6 +22,29 @@ public class Review {
         this.customer = customer;
         this.rating = rating;
         this.comment = comment;
+    }
+
+    public Review(int productId, int customerId, int rating, String comment) {
+        this.productId = productId;
+        this.customerId = customerId;
+        this.rating = rating;
+        this.comment = comment;
+    }
+
+    public int getProductId() {
+        return productId;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    public int getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
     }
 
     public int getId() {

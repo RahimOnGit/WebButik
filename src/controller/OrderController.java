@@ -5,6 +5,7 @@ import repository.DatabaseConnection;
 import repository.Imp.SqlCustomerRep;
 import repository.Imp.SqlOrderRepo;
 import repository.Imp.SqlProductRepo;
+import repository.ProductRepo;
 import service.CartService;
 import service.OrderService;
 import service.ProductService;
@@ -36,31 +37,6 @@ public class OrderController {
 //implement addCartToOrder()
 
 
-public void runMenu() throws SQLException {
-    Scanner sc = new Scanner(System.in);
-    int choice;
-    System.out.println("Welcome to the Order Menu");
-signIn();
-    System.out.println("1. Add Order");
-    System.out.println("2. Add Product to Order");
-    System.out.println("3. show customer history orders");
-    System.out.println("4. exit");
-    choice = sc.nextInt();
-    switch (choice) {
-        case 1:
-            addOrder();
-        case 2:
-            System.out.println("not available yet");
-            break;
-            case 3:
-                System.out.println("not available yet");
-                break;
-                case 4:
-                    System.exit(0);
-                    break;
-
-    }
-}
 
 public List<CartItem> addToCart() throws SQLException {
     Scanner sc = new Scanner(System.in);
@@ -94,10 +70,14 @@ public List<CartItem> addToCart() throws SQLException {
 
 
   //  System.out.println("Product "+this.cartService.getCart().toString()+" added to the cart ");
-//    for (CartItem cartItem : this.cartService.getCart()) {
-//        System.out.println(cartItem);
-//
-//    }
+    for (CartItem cartItem : this.cartService.getCart()) {
+     if(cartItem.getProduct().getQuantity()<quantity) {
+         System.out.println("\nSorry product Quantity Exceeded\n there are "+cartItem.getProduct().getQuantity()+" "+cartItem.getProduct().getName()+"in stock");
+     return null;
+
+     }
+
+    }
     return items;
 }
 
@@ -123,20 +103,43 @@ public void placeOrder(Customer customer){
           if(!productExists) {
               OrderProducts orderProduct = new OrderProducts(order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice());
               order.getOrderProducts().add(orderProduct);
-
           }
 
+
        }
-
        boolean orderSaved = sqlOrderRepo.addOrder(order);
-
        if (orderSaved) {
            for (OrderProducts op : order.getOrderProducts()) {
+               int currentStock = new SqlProductRepo().getProductById(op.getProduct().getProductId()).getQuantity();
+               System.out.println("stock before ordering  : " + currentStock);
+               currentStock-=op.getQuantity();
+               System.out.println("stock after : " + currentStock);
+               if(currentStock <= 0) {
+                   System.out.println("out of stock ");
+                   break;
+               }
+               new SqlProductRepo().updateStock(op.getProduct().getProductId(),currentStock);
+
                sqlOrderRepo.insertProductToOrder(op,conn);
+
            }
 
            System.out.println("Order successfully added with id : " + order.getId());
+
+           System.out.println("Review : \n");
+           for (CartItem cartItem : this.cartService.getCart()) {
+                {
+                    System.out.println(cartItem.toString());
+                    new ReviewController().addReview(customer.getId(),cartItem);
+                }
+
+               }
+
            cartService.clearCart();
+
+
+           //review controller function
+
        } else {
            System.out.println("failed to add Order");
        }

@@ -45,5 +45,19 @@ public boolean isEmpty()
         return cart.remove(cartItem);
     }
 
+    public void changeQuantity(List<CartItem> cartItems,int productId, int newQuantity) {
 
+
+
+        for(CartItem item : cartItems) {
+            if(item.getProduct().getProductId() == productId) {
+                item.setQuantity(newQuantity);
+                System.out.println(item.getProduct().getName()+" quantity changed to "+newQuantity);
+            }
+            else
+            {
+                System.out.println("not found");
+            }
+        }
+    }
 }

@@ -17,8 +17,6 @@ public class SessionManagment {
         List<Customer> customer = new CustomerService(new SqlCustomerRep()).showCustomers();
 
 
-
-
            Customer loggedCustomer = customerService.authenticate(email, password);
 
             if (loggedCustomer != null) {
@@ -62,7 +60,7 @@ public class SessionManagment {
 
 //just need to implement this
    public void stimulateSessionTimeout(UserSession session) throws SQLException {
-       System.out.println("stimulating session timeout");
+       System.out.println("session timeout");
        session.invalidate();
        if(!session.isValid())
        {
