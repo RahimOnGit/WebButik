@@ -10,7 +10,7 @@ import java.util.List;
 public class SqlAdmin {
     DatabaseConnection db = new DatabaseConnection();
 
-    public List<Admin> getAdmins() throws SQLException
+    public List<Admin> getAdmins()
     {
         List<Admin> admins = new ArrayList<Admin>();
         Admin admin = new Admin();

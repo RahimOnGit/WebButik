@@ -11,6 +11,8 @@ import service.OrderService;
 import service.ProductService;
 import service.SessionManagment;
 
+import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -40,21 +42,16 @@ public class OrderController {
 
 public List<CartItem> addToCart() throws SQLException {
     Scanner sc = new Scanner(System.in);
-    List <CartItem> items = new ArrayList<>();
+    List <CartItem> items;
 
+//filter
 
-//    System.out.println("enter F to  filter or press enter to skip");
-//    String f = sc.nextLine().trim();
-//    if(f.equalsIgnoreCase("F")) {
-//        new ProductController().filterByCategoryAndPrice();
-//    }
-//    else {
-//        new SqlProductRepo().getAllProducts();
-//    }
-
-        new SqlProductRepo().getAllProducts();
-
-
+    System.out.println("enter F to  filter or press enter to skip");
+    String f = sc.nextLine().trim();
+    if(f.equalsIgnoreCase("F")) {
+        new ProductController().filterByCategoryAndPrice();
+    }
+    new SqlProductRepo().getAllProducts();
     System.out.println("\nEnter Product ID");
     int  product_id = sc.nextInt();
 
@@ -72,24 +69,20 @@ public List<CartItem> addToCart() throws SQLException {
   //  System.out.println("Product "+this.cartService.getCart().toString()+" added to the cart ");
     for (CartItem cartItem : this.cartService.getCart()) {
      if(cartItem.getProduct().getQuantity()<quantity) {
-         System.out.println("\nSorry product Quantity Exceeded\n there are "+cartItem.getProduct().getQuantity()+" "+cartItem.getProduct().getName()+"in stock");
+         System.out.println(Colors.RED+"\nSorry product Quantity Exceeded\n there are "+cartItem.getProduct().getQuantity()+" "+cartItem.getProduct().getName()+"in stock"+Colors.RESET);
      return null;
 
      }
-
     }
     return items;
 }
 
-public void placeOrder(Customer customer){
-   try(Connection conn = DriverManager.getConnection(DatabaseConnection.url))
-   {
+public void placeOrder(Customer customer)throws SQLException {
 
        if (this.cartService.isEmpty()) {
            System.out.println("Cart is empty");
        return;
        }
-
        Order order = new Order(customer);
        for (CartItem item : this.cartService.getCart()) {
           boolean productExists = false;
@@ -103,6 +96,7 @@ public void placeOrder(Customer customer){
           if(!productExists) {
               OrderProducts orderProduct = new OrderProducts(order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice());
               order.getOrderProducts().add(orderProduct);
+              System.out.println(Colors.GREEN +orderProduct.getProduct().getName()+" has been placed successfully"+Colors.RESET);
           }
 
 
@@ -110,6 +104,7 @@ public void placeOrder(Customer customer){
        boolean orderSaved = sqlOrderRepo.addOrder(order);
        if (orderSaved) {
            for (OrderProducts op : order.getOrderProducts()) {
+
                int currentStock = new SqlProductRepo().getProductById(op.getProduct().getProductId()).getQuantity();
                System.out.println("stock before ordering  : " + currentStock);
                currentStock-=op.getQuantity();
@@ -119,12 +114,8 @@ public void placeOrder(Customer customer){
                    break;
                }
                new SqlProductRepo().updateStock(op.getProduct().getProductId(),currentStock);
-
-               sqlOrderRepo.insertProductToOrder(op,conn);
-
            }
-
-           System.out.println("Order successfully added with id : " + order.getId());
+           System.out.println(Colors.GREEN +"Order successfully added with id : " + order.getId()+Colors.RESET);
 
            System.out.println("Review : \n");
            for (CartItem cartItem : this.cartService.getCart()) {
@@ -132,132 +123,17 @@ public void placeOrder(Customer customer){
                     System.out.println(cartItem.toString());
                     new ReviewController().addReview(customer.getId(),cartItem);
                 }
-
-               }
+           }
 
            cartService.clearCart();
 
 
-           //review controller function
+
 
        } else {
-           System.out.println("failed to add Order");
+           System.out.println(Color.RED+"failed to add Order"+Colors.RESET);
        }
-   }
-    catch (SQLException e) {
-        System.out.println(e.getMessage());
-
-    }
-
 }
-
-
-public void addCartToOrder(Customer customer) throws SQLException {
-   Scanner sc = new Scanner(System.in);
-    System.out.println("Enter product id :");
-    new ProductService(new SqlProductRepo()).showProducts();
-
-    int productId = sc.nextInt();
-    sc.nextLine();
-    Product product = new SqlProductRepo().getProductById(productId);
-    if(product == null) {
-        System.out.println("Product not found");
-    }
-;
-    System.out.println("Enter quantity");
-    int quantity = sc.nextInt();
-    CartItem cartItem = new CartItem(product, quantity);
-    Order order = new Order(customer);
-    OrderProducts op = new OrderProducts(order,cartItem,product.getPrice());
-    order.getOrderProducts().add(op);
-
-    boolean res = orderService.addOrder(order);
-    System.out.println(res?" Order added with id : "+order.getId(): "failed to add order");
-
-        //CartItem cartItem =  orderService.addProductsToCart();
-
-
-}
-
-void addOrder() throws SQLException {
-    Scanner sc = new Scanner(System.in);
-    System.out.println("Enter customer id");
-    int customerId = sc.nextInt();
-
-Customer customer= new SqlCustomerRep().findById(customerId);
-if(customer == null) {
-    System.out.println("Customer not found");
-    return;
-}
-Order order = new Order(customer);
-    System.out.println("Enter product id");
-    new ProductService(new SqlProductRepo()).showProducts();
-    int productId = sc.nextInt();
-Product product = new SqlProductRepo().getProductById(productId);
-if(product == null) {
-    System.out.println("Product not found");
-}
-
-    System.out.println("Enter quantity");
-int quantity = sc.nextInt();
-//unlock them if u want to acitve this cfucntion
-//OrderProducts op = new OrderProducts(order,product,quantity,product.getPrice());
-//order.getOrderProducts().add(op);
-
-
-
-
-    boolean res = sqlOrderRepo.addOrder(order);
-    System.out.println(res?"successfully added with id :"+order.getId():"X failed to add order ");
-}
-//
-//    void addProductToCart(Customer id) throws SQLException {
-//        Scanner sc = new Scanner(System.in);
-//        System.out.println("Enter customer id");
-//        int customerId = sc.nextInt();
-//        CartItem cartItem = new CartItem();
-//        List<CartItem> cartItems;
-//        //Order order = new Order(cusomter);
-//        System.out.println("Enter product id");
-//        new ProductService(new SqlProductRepo()).showProducts();
-//        int productId = sc.nextInt();
-//        Product product = new SqlProductRepo().getProductById(productId);
-//        if(product == null) {
-//            System.out.println("Product not found");
-//        }
-//
-//        System.out.println("Enter quantity");
-//        int quantity = sc.nextInt();
-//        OrderProducts op = new OrderProducts(order,product,quantity,product.getPrice());
-//        order.getOrderProducts().add(op);
-//
-//
-//        boolean res = sqlOrderRepo.addOrder(order);
-//        System.out.println(res?"successfully added with id :"+order.getId():"X failed to add order ");
-//    }
-
-
-
-void signIn() throws SQLException {
-
-    Scanner sc = new Scanner(System.in);
-    System.out.println("1.Login\n2.Register");
-    int choice = Integer.parseInt(sc.nextLine());
-    switch (choice) {
-        case 1: {
-            System.out.println("Enter email");
-            String email = sc.nextLine().trim();
-
-            System.out.println("Enter password");
-            String password = sc.nextLine().trim();
-            new SessionManagment().login(email, password);
-        }
-case 2:
-        new CustomerController().addCustomer();
-    }
-
-    }
-
 
     public void orderHistory() throws SQLException {
 Scanner sc = new Scanner(System.in);

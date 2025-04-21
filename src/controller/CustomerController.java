@@ -36,7 +36,9 @@ public class CustomerController extends SqlCustomerRep {
                case 2 ->
                        new CartController().cartMenu(customer);
                case 3 -> updateCustomer(customer.getId());
-               case 4 -> { customer = signIn(); }
+               case 4 -> {
+                   System.out.println("logged out...");
+                   customer = signIn(); }
            }
        }  while (choice!=5);
 

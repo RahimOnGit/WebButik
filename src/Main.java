@@ -26,15 +26,7 @@ int choice = scanner.nextInt();
 switch (choice) {
     case 1-> adminController.adminMenu();
     case 2-> customerController.runMenu();
-
 }
-
-
-
-
-
-
-
 ////main
 //Scanner sc = new Scanner(System.in);
 //        System.out.println("1.Customers\n2.Products\n3.order\n4.exit");

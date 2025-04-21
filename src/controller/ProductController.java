@@ -33,7 +33,7 @@ public class ProductController {
                 updateProduct();
                 break;
             default:
-                System.out.println("Invalid choice.");
+                System.out.println(Colors.RED+"Invalid choice."+Colors.RESET);
                 break;
         }
     }
