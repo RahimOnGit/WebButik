@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CartService {
-    private List<CartItem> cart = new ArrayList<>();
+    private final List<CartItem> cart = new ArrayList<>();
 
     public List<CartItem> addToCart(Product product , int quantity) {
 
@@ -46,8 +46,6 @@ public boolean isEmpty()
     }
 
     public void changeQuantity(List<CartItem> cartItems,int productId, int newQuantity) {
-
-
 
         for(CartItem item : cartItems) {
             if(item.getProduct().getProductId() == productId) {

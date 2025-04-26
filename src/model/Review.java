@@ -9,21 +9,6 @@ public class Review {
     private String comment;
     private int productId;
     private int customerId;
-
-    public Review(int id, Product product, Customer customer, int rating, String comment) {
-        this.id = id;
-        this.product = product;
-        this.customer = customer;
-        this.rating = rating;
-        this.comment = comment;
-    }
-    public Review(Product product, Customer customer, int rating, String comment) {
-        this.product = product;
-        this.customer = customer;
-        this.rating = rating;
-        this.comment = comment;
-    }
-
     public Review(int productId, int customerId, int rating, String comment) {
         this.productId = productId;
         this.customerId = customerId;

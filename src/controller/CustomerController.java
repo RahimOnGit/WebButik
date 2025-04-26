@@ -19,14 +19,15 @@ public class CustomerController extends SqlCustomerRep {
     OrderService orderService = new OrderService();
     public void runMenu() throws SQLException {
 
-    //   Customer customer =  signIn();
 
+        Customer customer =  signIn();
+     if(customer==null){
+     return;
+     }
 
-           Scanner sc = new Scanner(System.in);
-           int choice=0;
-        //   System.out.println("Welcome " + customer.getName());
-
-        Customer customer = new Customer(6,"Semo Elhaj","Semo666@gmail.com","076363753","hisstornsgatan 8","123456");
+        Scanner sc = new Scanner(System.in);
+           int choice;
+          // System.out.println("Welcome " + customer.getName());
        do{
            System.out.println("\n1.order history\n2.order\n3.update my info\n4.Log out\n5.Exit");
 
@@ -39,7 +40,11 @@ public class CustomerController extends SqlCustomerRep {
                case 4 -> {
                    System.out.println("logged out...");
                    customer = signIn(); }
+               default-> {
+              return;
+               }
            }
+
        }  while (choice!=5);
 
         }
@@ -56,8 +61,16 @@ public class CustomerController extends SqlCustomerRep {
                   case 1 -> {
                       customer = login();
                   }
-                  case 2 -> register();
+                  case 2 ->
+                          {
+                              //System.out.println(register()?" successfully registered!":" failed to register");
+                              customer = register();
+
+                          }
                   case 3 -> System.exit(0);
+                  default-> {
+                      System.out.println("invalid input.. try again");   signIn();
+                  }
               }
 
 
@@ -65,15 +78,15 @@ public class CustomerController extends SqlCustomerRep {
           }while (choice != 3);
           }
         public Customer login() throws SQLException {
+
             System.out.println("Sign in\n");
-            System.out.println("enter email :");
-            String email = sc.next();
-            System.out.println("enter password :");
-            String password = sc.next();
+    System.out.println("enter email :");
+    String email = sc.next();
+    System.out.println("enter password :");
+    String password = sc.next();
+    return new SessionManagment().login(email, password);
 
-            return new SessionManagment().login(email, password);
-
-        }
+}
 
         public void customerOrderHistory(Customer customer) throws SQLException {
             System.out.println(customer.getName()+" order history");
@@ -89,15 +102,19 @@ public class CustomerController extends SqlCustomerRep {
                }
 
         }
-        public void register() throws SQLException {
-            System.out.println("Registration");
-    addCustomer();
-    }
-    public void addCustomer() throws SQLException {
+        public Customer register() throws SQLException {
+        System.out.println("Registration");
 
+            Customer customer = customerEntry();
+            if(!customer.validCustomer())
+            {
+                System.out.println(Colors.RED+"fix the errors "+Colors.RESET);
+                return null;
+            }
 
-        Customer customer = customerEntry();
-         customerService.registerCustomer(customer);
+            customerService.registerCustomer(customer);
+customer = signIn();
+            return customer;
 
     }
 
@@ -106,7 +123,7 @@ public class CustomerController extends SqlCustomerRep {
       Customer updatedCustomer = customerEntry();
          customerService.updateCustomer(customerId,updatedCustomer);
     }
-   //update
+
 
 public void viewCustomers() throws SQLException {
     List<Customer> customer = customerService.showCustomers();
@@ -132,7 +149,8 @@ public Customer customerEntry()
     String password = sc.nextLine();
 
      customer = new Customer(name, email, phone, address, password);
-return customer;
+
+     return customer;
 }
 
 

@@ -2,6 +2,7 @@ package controller;
 
 import model.CartItem;
 import model.Customer;
+import repository.Imp.SqlProductRepo;
 import service.CartService;
 
 import java.sql.SQLException;
@@ -19,8 +20,7 @@ public class CartController {
 
     public void cartMenu(Customer customer) throws SQLException {
         Scanner sc = new Scanner(System.in);
-        CartItem cartItem = new CartItem();
-        List<CartItem> cartItems = List.of();
+               List<CartItem> cartItems = List.of();
         while (true) {
             System.out.println("\nCart Menu:");
             System.out.println("1. Add product to cart");
@@ -46,26 +46,19 @@ public class CartController {
     }
 
 
-    public void viewCart(List<CartItem> cartItems)  {
+    public void viewCart(List<CartItem> cartItems) throws SQLException {
         Scanner sc = new Scanner(System.in);
-        System.out.println("order total price : "+cartService.getTotalPrice());
 
-
-        System.out.println("your items :");
-
-        boolean res = cartItems.isEmpty();
-        if (res)
-        {
-            System.out.println("Your cart is empty");
+        if(cartItems==null || cartItems.isEmpty()){
+            System.out.println("empty cart");
             return;
         }
 
+        System.out.println(Colors.BLUE+"order total price : "+cartService.getTotalPrice()+Colors.RESET);
+        System.out.println("your items :");
         for (CartItem items : cartItems) {
             System.out.println(items.toString());
-
         }
-
-
         System.out.println("1.remove product from cart\n2.change product quantity\n0.back ");
         int choice = sc.nextInt();
         switch (choice) {
@@ -79,8 +72,17 @@ public class CartController {
             case 2:
                 System.out.println("enter product id to change quantity\n");
                 int pId = sc.nextInt();
-                System.out.println("enter quantity\n");
-                int quantity = sc.nextInt();
+                int quantity = 0;
+                int currentQuantity=0;
+                do {
+                    System.out.println("Enter Quantity");
+
+                    quantity = sc.nextInt();
+                    currentQuantity = new SqlProductRepo().getProductById(pId).getQuantity();
+                    if (quantity > currentQuantity) {
+                        System.out.println(Colors.RED + "\nSorry product quantity exceeded there are  "+ currentQuantity + " products in stock"+Colors.RESET);
+                    }
+                } while (quantity > currentQuantity);
                     changeQuantity(cartItems,pId,quantity);
                     return;
 
@@ -108,7 +110,7 @@ public class CartController {
         }
     }
     //do it later
-    public void changeQuantity(List<CartItem> cartItem,int productId, int newQuantity) {
+    public void changeQuantity(List<CartItem> cartItem,int productId, int newQuantity) throws SQLException {
 
         cartService.changeQuantity(cartItem,productId,newQuantity);
 

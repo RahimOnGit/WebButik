@@ -1,5 +1,6 @@
 package service;
 
+import controller.Colors;
 import model.Customer;
 import repository.Imp.SqlCustomerRep;
 
@@ -8,22 +9,21 @@ import java.util.List;
 
 public class CustomerService extends SqlCustomerRep {
     private final SqlCustomerRep customerRepo;
-//not yet
-    //validate emails
-    //validate not null entry
+
+
 
     public CustomerService(SqlCustomerRep customerRepo) {
         this.customerRepo = customerRepo;
     }
 
-    public void registerCustomer(Customer customer) throws SQLException {
+    public void registerCustomer(Customer customer)  {
 
         boolean res = customerRepo.addCustomer(customer);
-        System.out.println(res ? "Customer added successfully" : " failed to add a customer");
+        System.out.println(res ? Colors.GREEN+"Customer added successfully"+Colors.RESET: " failed to add a customer"+Colors.RESET);
 
     }
 
-    public void updateCustomer(int customerId, Customer customer) throws SQLException {
+    public void updateCustomer(int customerId, Customer customer)  {
 
         boolean res = customerRepo.UpdateCustomer(customerId, customer);
         System.out.println(res ? "Customer updated successfully" : " failed to update a customer");

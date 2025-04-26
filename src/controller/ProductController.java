@@ -174,19 +174,23 @@ public void filterByCategoryAndPrice()  {
 
         try {
 new SqlProductRepo().showCategory();
-            System.out.println("select category id: ");
+            System.out.println(Colors.YELLOW+"select category id: "+Colors.RESET);
             int categoryId = scanner.nextInt();
-            System.out.println("max price: ");
+            System.out.println(Colors.YELLOW+"max price: "+Colors.RESET);
             double maxPrice = scanner.nextDouble();
             List<Product> filtered = product.filterByCategoryAndPrice(categoryId, maxPrice);
             if (filtered.isEmpty()) {
-                System.out.println("No products found");
+                System.out.println(Colors.RED+"No products found\nfilter skipped"+Colors.RESET);
+
+               new SqlProductRepo().getAllProducts();
+                return;
             } else {
                 filtered.forEach(System.out::println);
+
             }
         }
     catch(Exception e) {
-            System.out.println("Filter failed "+e.getMessage());
+            System.out.println(Colors.RED+"Filter failed "+e.getMessage()+Colors.RESET);
     }
 }
 

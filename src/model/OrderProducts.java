@@ -71,6 +71,7 @@ public class OrderProducts  {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
         }
+
         this.quantity = quantity;
     }
 

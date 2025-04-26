@@ -38,7 +38,7 @@ public class SqlAdmin {
     }
 
 
-    public void insertAdmin(Admin admin) throws SQLException
+    public void insertAdmin(Admin admin)
     {
         try(Connection conn = db.getConnection())
         {

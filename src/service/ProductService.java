@@ -23,7 +23,7 @@ public void insertProduct(Product product) {
 }
 
     public void updateStock(int productId, int stock){
-        //check product no found
+
         boolean res = productRepo.updateStock(productId, stock);
 
         System.out.println(res?"stock updated successfully :)":"failed to  updated the price :(");

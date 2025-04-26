@@ -34,8 +34,9 @@ public class ReviewController {
 //        }
         int rating;
 while(true) {
-    System.out.println("rating out of /5 :");
+    System.out.println("rate between 1-5 :");
     rating = sc.nextInt();
+
     if(rating ==0) {
         System.out.println("review skipped");
         return;
@@ -44,14 +45,14 @@ while(true) {
         break;
     }
     System.out.println(Colors.RED+"rating must be between 1 and 5"+Colors.RESET);
+    }
 
-}
 
         sc.nextLine();
             System.out.println("comment :");
             String comment = sc.next();
             reviewService.insertReview(item.getProduct().getProductId(), customerId, rating, comment);
-        System.out.println(Colors.RED+"review submitted successfully"+Colors.RESET);
+        System.out.println(Colors.GREEN+"review submitted successfully"+Colors.RESET);
         }
     }
 

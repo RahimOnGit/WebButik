@@ -55,6 +55,7 @@ public class CartItem {
         return product.getPrice() * quantity;
     }
 
+
 @Override
 public String toString() {
         return "CartItem { product "+product.getProductId()+ "  "+ product.getName() +" price : "+product.getPrice() + ", quantity=" + quantity+", totalPrice: " + calculateTotalPrice() + '}';

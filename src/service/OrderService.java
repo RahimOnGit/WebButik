@@ -23,7 +23,7 @@ this.sqlProductRepo = new SqlProductRepo();
 //methods
 
     //order history for customer
-    public List<Order> getOrderHistoryForCustomer(int customerId) throws SQLException {
+    public List<Order> getOrderHistoryForCustomer(int customerId) {
         return sqlOrderRepo.orderHistory(customerId);
     }
 

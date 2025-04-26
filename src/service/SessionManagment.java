@@ -1,5 +1,6 @@
 package service;
 
+import controller.Colors;
 import controller.CustomerController;
 import model.Customer;
 import repository.Imp.SqlCustomerRep;
@@ -11,42 +12,34 @@ import java.util.Scanner;
 //VG
 public class SessionManagment {
     CustomerService customerService = new CustomerService(new SqlCustomerRep());
-    CustomerController customerController = new CustomerController();
 
     public Customer login(String email, String password) throws SQLException {
-        List<Customer> customer = new CustomerService(new SqlCustomerRep()).showCustomers();
-
-
-           Customer loggedCustomer = customerService.authenticate(email, password);
+        Customer loggedCustomer = customerService.authenticate(email, password);
 
             if (loggedCustomer != null) {
-                System.out.println("Logged in successfully");
+                System.out.println(Colors.GREEN+"Logged in successfully"+Colors.RESET);
                 System.out.println("Hi , " + loggedCustomer.getName());
-
                 createSession(loggedCustomer);
-
-
-           }
+            }
            else  {
-                System.out.println("Can't log in ..check the email and the password...\n");
-
+                System.out.println(Colors.RED+"Can't log in ..check the email and the password...\n"+Colors.RESET);
                 }
            return loggedCustomer;
 
     }
 
 
-    public void createSession(Customer loggedCustomer) throws SQLException {
+    public void createSession(Customer loggedCustomer){
 
         System.out.println("create session for user");
         UserSession session = new UserSession(loggedCustomer);
-        System.out.println("session created successfully "+ session.getSessionId());
         checkSession(session);
+        System.out.println("session created successfully "+ session.getSessionId());
 
 
 
     }
-   public void checkSession(UserSession session) throws SQLException {
+   public void checkSession(UserSession session) {
        if(session.isValid())
        {
            System.out.println("session valid");
@@ -58,18 +51,7 @@ public class SessionManagment {
        }
    }
 
-//just need to implement this
-   public void stimulateSessionTimeout(UserSession session) throws SQLException {
-       System.out.println("session timeout");
-       session.invalidate();
-       if(!session.isValid())
-       {
-           System.out.println("session successfully invalidated");
-       }
-       else {
-           System.out.println("Failed to invalidate session");
-       }
-   }
+
 
 
 
@@ -80,7 +62,7 @@ public class SessionManagment {
         private boolean valid;
 
         public UserSession(Customer customer) {
-            this.sessionId = "SESSION_" + System.currentTimeMillis();
+            this.sessionId = "SESSION:" + System.currentTimeMillis();
             this.customer = customer;
             this.valid = true;
         }

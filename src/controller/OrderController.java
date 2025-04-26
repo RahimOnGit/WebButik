@@ -27,7 +27,8 @@ public class OrderController {
     SqlOrderRepo sqlOrderRepo = new SqlOrderRepo();
     private ProductService productService;
     private  CartService cartService;
-    public OrderController(CartService cartService) {
+    public OrderController(CartService cartService)
+    {
         this.cartService = cartService;
     }
     public OrderController() {
@@ -42,38 +43,44 @@ public class OrderController {
 
 public List<CartItem> addToCart() throws SQLException {
     Scanner sc = new Scanner(System.in);
-    List <CartItem> items;
+    List<CartItem> items;
 
 //filter
 
     System.out.println("enter F to  filter or press enter to skip");
     String f = sc.nextLine().trim();
-    if(f.equalsIgnoreCase("F")) {
+    if (f.equalsIgnoreCase("F")) {
         new ProductController().filterByCategoryAndPrice();
+    } else {
+        new SqlProductRepo().getAllProducts();
     }
-    new SqlProductRepo().getAllProducts();
     System.out.println("\nEnter Product ID");
-    int  product_id = sc.nextInt();
+    int product_id = sc.nextInt();
 
-         Product product = new SqlProductRepo().getProductById(product_id);
-    if(product == null) {
+    Product product = new SqlProductRepo().getProductById(product_id);
+    if (product == null) {
         System.out.println("Product not found");
         return null;
     }
-    System.out.println("Enter Quantity");
-    int quantity = sc.nextInt();
+    int quantity = 0;
+    do {
+        System.out.println("Enter Quantity");
 
-     items = this.cartService.addToCart(product, quantity);
+        quantity = sc.nextInt();
 
+        int currentQuantity = product.getQuantity();
+        if(quantity==0)
+        {
+            System.out.println(Colors.RED+"can't add product with 0 quantity"+Colors.RESET);
+            return null;
 
-  //  System.out.println("Product "+this.cartService.getCart().toString()+" added to the cart ");
-    for (CartItem cartItem : this.cartService.getCart()) {
-     if(cartItem.getProduct().getQuantity()<quantity) {
-         System.out.println(Colors.RED+"\nSorry product Quantity Exceeded\n there are "+cartItem.getProduct().getQuantity()+" "+cartItem.getProduct().getName()+"in stock"+Colors.RESET);
-     return null;
+        }
+        if (quantity > currentQuantity) {
+            System.out.println(Colors.RED + "\nSorry product quantity exceeded there are  "+ currentQuantity + " products in stock"+Colors.RESET);
+        }
+    } while (quantity > product.getQuantity());
+    items = this.cartService.addToCart(product, quantity);
 
-     }
-    }
     return items;
 }
 
@@ -84,7 +91,9 @@ public void placeOrder(Customer customer)throws SQLException {
        return;
        }
        Order order = new Order(customer);
-       for (CartItem item : this.cartService.getCart()) {
+       List<CartItem> cartItems = this.cartService.getCart();
+
+       for (CartItem item : cartItems) {
           boolean productExists = false;
           for(OrderProducts orderProducts : order.getOrderProducts()) {
               if(orderProducts.getProduct().getProductId() == item.getProduct().getProductId()) {
@@ -94,29 +103,26 @@ public void placeOrder(Customer customer)throws SQLException {
               }
           }
           if(!productExists) {
-              OrderProducts orderProduct = new OrderProducts(order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice());
-              order.getOrderProducts().add(orderProduct);
-              System.out.println(Colors.GREEN +orderProduct.getProduct().getName()+" has been placed successfully"+Colors.RESET);
+              OrderProducts newOrderProduct = new OrderProducts(order, item.getProduct(), item.getQuantity(), item.getProduct().getPrice());
+              order.getOrderProducts().add(newOrderProduct);
           }
-
 
        }
        boolean orderSaved = sqlOrderRepo.addOrder(order);
+       //update stock
        if (orderSaved) {
            for (OrderProducts op : order.getOrderProducts()) {
-
                int currentStock = new SqlProductRepo().getProductById(op.getProduct().getProductId()).getQuantity();
-               System.out.println("stock before ordering  : " + currentStock);
-               currentStock-=op.getQuantity();
-               System.out.println("stock after : " + currentStock);
-               if(currentStock <= 0) {
-                   System.out.println("out of stock ");
-                   break;
+               if(op.getQuantity()>currentStock) {
+                   System.out.println("empty cart");
+                   return;
                }
+               currentStock-=op.getQuantity();
                new SqlProductRepo().updateStock(op.getProduct().getProductId(),currentStock);
            }
            System.out.println(Colors.GREEN +"Order successfully added with id : " + order.getId()+Colors.RESET);
 
+           //review
            System.out.println("Review : \n");
            for (CartItem cartItem : this.cartService.getCart()) {
                 {
@@ -124,12 +130,7 @@ public void placeOrder(Customer customer)throws SQLException {
                     new ReviewController().addReview(customer.getId(),cartItem);
                 }
            }
-
            cartService.clearCart();
-
-
-
-
        } else {
            System.out.println(Color.RED+"failed to add Order"+Colors.RESET);
        }

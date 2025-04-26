@@ -1,5 +1,9 @@
 package model;
 
+import controller.Colors;
+
+import java.sql.SQLException;
+
 public class Customer extends User {
     @Override
     public boolean Authenticate(String password) {
@@ -52,6 +56,7 @@ public class Customer extends User {
     }
 
     public void setAddress(String address) {
+
         this.address = address;
     }
 
@@ -83,6 +88,38 @@ public class Customer extends User {
         return this.getPassword()!= null && this.getPassword().equals(password);
 
     }
+
+
+    public boolean validCustomer() {
+        boolean isValid = true;
+        if (name == null || name.trim().isEmpty()) {
+            System.out.println(Colors.RED +"Name can't be empty");
+            isValid = false;
+        }
+
+        if (email == null || !email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            System.out.println(Colors.RED+"Invalid email format");
+            isValid = false;
+        }
+
+        if (phone == null || !phone.matches("^\\d{7,15}$")) {
+            System.out.println(Colors.RED+"Phone must contain only digits (7-15 digits)");
+            isValid = false;
+        }
+
+        if (address == null || address.trim().isEmpty()) {
+            System.out.println(Colors.RED+"Address can't be empty");
+            isValid = false;
+        }
+
+        if (password == null || password.length() < 4) {
+            System.out.println(Colors.RED+"Password must be at least 4 characters");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
 
     @Override
     public String toString() {

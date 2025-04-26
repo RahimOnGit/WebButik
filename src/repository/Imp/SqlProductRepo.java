@@ -48,11 +48,6 @@ public class SqlProductRepo implements ProductRepo {
         }
     }
 
-    public void autoUpdateStock(int productId, int stock) throws SQLException {
-        Connection conn = dbConn.getConnection();
-        PreparedStatement pstmt = conn.prepareStatement("UPDATE products SET stock_quantity=? WHERE product_id=?");
-
-    }
 
     //update price
     @Override

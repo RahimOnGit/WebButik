@@ -37,13 +37,9 @@ public void addAdmin() throws SQLException
     boolean isValid = login();
     if(isValid)
     {
-
-
         Scanner sc = new Scanner(System.in);
         int choice;
         System.out.println("Welcome to Admin page");
-
-
         System.out.println("1.Customers\n2.Products\n3.exit");
         choice = sc.nextInt();
         switch (choice) {
@@ -64,10 +60,6 @@ public void addAdmin() throws SQLException
     {
         System.out.println("Invalid login");
     }
-
-
-
-
     }
 
     public void products() throws SQLException {
@@ -106,7 +98,6 @@ public void addAdmin() throws SQLException
         int id;
         id = Integer.parseInt(sc.nextLine());
 
-
         System.out.println("enter your password : ");
         String password = sc.nextLine();
 
@@ -137,7 +128,7 @@ choice = sc.nextInt();
                 case 1->
                     showCustomers();
                 case 2->
-                    customerOrderHistory(); //check if customer does not have an order
+                    customerOrderHistory();
                 case 3->
                     deleteCustomer();
             case 4-> adminMenu();
